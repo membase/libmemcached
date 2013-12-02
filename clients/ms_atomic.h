@@ -27,7 +27,7 @@
 #  define  atomic_dec_size_nv(X, Y) atomic_add_32((X), (Y))
 # endif
 # undef _KERNEL
-#elif HAVE_GCC_ATOMIC_BUILTINS
+#elif defined(HAVE_GCC_ATOMIC_BUILTINS)
 # define atomic_add_8(X, Y)  __sync_fetch_and_add((X), (Y))
 # define atomic_add_16(X, Y) __sync_fetch_and_add((X), (Y))
 # define atomic_add_32(X, Y) __sync_fetch_and_add((X), (Y))
@@ -45,6 +45,17 @@
 # define atomic_dec_16_nv(X) __sync_fetch_and_sub((X), 1)
 # define atomic_dec_32_nv(X) __sync_fetch_and_sub((X), 1)
 # define atomic_dec_size_nv(X) __sync_fetch_and_sub((X), 1)
+#elif defined(TARGET_OS_FREEBSD)
+# include <sys/cdefs.h>
+# include <machine/atomic.h>
+/* atomic_add_{8,16,32} already defined in machine/atomic.h */
+# define atomic_dec_8(X) atomic_subtract_8((X), 1)
+# define atomic_dec_16(X) atomic_subtract_16((X), 1)
+# define atomic_dec_32(X) atomic_subtract_32((X), 1)
+# define atomic_add_size(X, Y) atomic_add_32((X), (Y))
+# define atomic_dec_size(X, Y) atomic_subtract_32((X), (Y))
+# define atomic_add_size_nv(X, Y) atomic_fetchadd_32((X), (Y))
+# define atomic_add_32_nv(X, Y) atomic_fetchadd_32((X), (Y))
 #else
 #warning "Atomic operators not found so memslap will not work correctly"
 # define atomic_add_8(X, Y)
